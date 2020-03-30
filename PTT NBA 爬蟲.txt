@@ -1,0 +1,20 @@
+#R web-curling on PTT NBA
+library("rvest")
+base_url<-"https://www.ptt.cc/bbs/NBA/index"
+page_link<-paste0(base_url,5526:5525,".html")
+for(i in seq_along(page_link)){
+  doc<-read_html(page_link[i])
+  total_article_title<-html_nodes(doc,".title a")
+  total_article_link<-html_attr(total_article_title,"href")
+}
+
+total_content<-vector("list",length(total_article_link))
+base_url1<-"https://www.ptt.cc"
+for(j in seq_along(total_article_link)){
+  true_url<-paste0(base_url1,total_article_link[j])
+  doc<-read_html(true_url)
+  content<-html_node(doc,"#main-content")
+  content_text<-html_text(content)
+  total_content[[j]]<-content_text
+}
+head(total_content)

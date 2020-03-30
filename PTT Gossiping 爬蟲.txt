@@ -1,0 +1,43 @@
+#R web-curling on PTT Gossiping
+library("rvest")
+read_html("https://www.ptt.cc/bbs/Gossiping/index.html") %>% html_text(trim = T)
+session = rvest::html_session(url = "https://www.ptt.cc/bbs/Gossiping/index.html")
+
+form = session %>%
+  html_node("form") %>%
+  html_form()
+
+session_redirected = rvest::submit_form(session = session, form = form )
+
+session_redirected %>%
+  html_node("body") %>%
+  html_nodes(".title") %>%
+  html_text(trim=T)
+
+session_redirected %>% cookies
+library("knitr")
+session_redirected %>% cookies %>% kable
+
+doc<-read_html("https://www.ptt.cc/bbs/Gossiping/index31552.html")
+article_title<-html_nodes(doc,".title a")
+
+article_link<-html_attr(article_title,"href")
+article_text<-html_text(article_title)
+
+base_url<-"https://www.ptt.cc/bbs/Food/index"
+page_link<-paste0(base_url,6424:6420,".html")
+total_article_link<-c()
+for(i in seq_along(page_link)){
+  doc<-read_html(page_link[i])
+  total_article_link<-c(total_article_link,article_link)
+}
+
+total_content<-vector("list",length(total_article_link))
+base_url1<-"https://www.ptt.cc"
+for(j in seq_along(total_article_link)){
+  true_url<-paste0(base_url1,total_article_link[j])
+  doc<-read_html(true_url)
+  content<-html_node(doc,"#main-content")
+  content_text<-html_text(content)
+  total_content[[j]]<-content_text
+}
